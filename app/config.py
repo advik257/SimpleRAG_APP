@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # GROQ Configuration
     groq_api_key: str
 
+    # Cohere Configuration
+    cohere_api_key: str
+
     # Qdrant Cloud Configuration
     qdrant_url: str
     qdrant_api_key: str
@@ -31,7 +34,7 @@ class Settings(BaseSettings):
 
     # Model Configuration
     embedding_model: str = "embed-english-v3.0"
-    llm_model: str = "openai/gpt-oss-120b"
+    llm_model: str = "meta-llama/llama-prompt-guard-2-86m"
     llm_temperature: float = 0.0
 
     # Retrieval Settings
