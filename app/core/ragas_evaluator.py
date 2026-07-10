@@ -1,6 +1,7 @@
 """RAGAS evaluation module for RAG quality assessment."""
 
 import asyncio
+import math
 import time
 from typing import Any
 
@@ -8,6 +9,7 @@ from datasets import Dataset
 from langchain_groq import ChatGroq
 from langchain_cohere import CohereEmbeddings
 from ragas import evaluate
+from ragas.run_config import RunConfig
 from ragas.metrics import answer_relevancy, faithfulness
 
 from app.config import get_settings
@@ -28,7 +30,7 @@ class RAGASEvaluator:
 
         # Use RAGAS-specific LLM settings if provided, otherwise fall back to default
         eval_llm_model = self.settings.ragas_llm_model or self.settings.llm_model
-        
+
         eval_llm_temperature = (
             self.settings.ragas_llm_temperature
             if self.settings.ragas_llm_temperature is not None
@@ -93,10 +95,12 @@ class RAGASEvaluator:
 
             evaluation_time_ms = (time.time() - start_time) * 1000
 
-            # Extract scores
+            # Extract scores (NaN-sanitized so Pydantic validation never chokes)
             scores = {
-                "faithfulness": float(result["faithfulness"]) if "faithfulness" in result else None,
-                "answer_relevancy": (
+                "faithfulness": self._sanitize_score(
+                    float(result["faithfulness"]) if "faithfulness" in result else None
+                ),
+                "answer_relevancy": self._sanitize_score(
                     float(result["answer_relevancy"]) if "answer_relevancy" in result else None
                 ),
                 "evaluation_time_ms": round(evaluation_time_ms, 2),
@@ -146,6 +150,15 @@ class RAGASEvaluator:
 
         return Dataset.from_dict(data)
 
+    @staticmethod
+    def _sanitize_score(value: float | None) -> float | None:
+        """Convert NaN to None so Pydantic validation doesn't reject it."""
+        if value is None:
+            return None
+        if isinstance(value, float) and math.isnan(value):
+            return None
+        return value
+
     def _evaluate_with_timeout(self, dataset: Dataset) -> dict[str, Any]:
         """Execute RAGAS evaluation with timeout.
 
@@ -158,14 +171,22 @@ class RAGASEvaluator:
         Raises:
             TimeoutError: If evaluation exceeds timeout
         """
-        # Note: asyncio.timeout would be ideal, but RAGAS evaluate() is sync
-        # For now, we rely on the async wrapper and trust RAGAS to complete
-        # In production, consider using signal.alarm or threading.Timer
+        run_config = RunConfig(
+            timeout=(
+                self.settings.ragas_timeout_seconds
+                if self.settings.ragas_timeout_seconds > 30
+                else 120
+            ),
+            max_retries=2,
+            max_workers=2,
+        )
+
         result = evaluate(
             dataset,
             metrics=self.metrics,
             llm=self.llm,
             embeddings=self.embeddings,
+            run_config=run_config,
         )
 
         # Convert to dictionary and extract scores

@@ -10,6 +10,7 @@ langchain-cohere
 langchain-qdrant
 langchain-community
 langchain-text-splitters
+langchain-google-vertexai
 
 # Vector Database
 qdrant-client

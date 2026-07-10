@@ -51,6 +51,7 @@ class VectorStoreService:
             collection_name: Name of the Qdrant collection (default from settings)
         """
         self.collection_name = collection_name or settings.collection_name
+        print(f"Using Qdrant collection: {self.collection_name}")
         self.client = get_qdrant_client()
         self.embeddings = get_embeddings()
 

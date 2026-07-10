@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     # Model Configuration
     embedding_model: str = "embed-english-v3.0"
-    llm_model: str = "meta-llama/llama-prompt-guard-2-86m"
+    llm_model: str = "qwen/qwen3-32b"
     llm_temperature: float = 0.0
 
     # Retrieval Settings
