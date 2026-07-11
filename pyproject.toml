@@ -27,3 +27,8 @@ dependencies = [
     "structlog>=26.1.0",
     "uvicorn[standard]>=0.50.2",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.21",
+]
