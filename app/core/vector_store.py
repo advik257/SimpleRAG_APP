@@ -176,8 +176,8 @@ class VectorStoreService:
         self.client.delete_collection(self.collection_name)
         logger.info(f"Collection '{self.collection_name}' deleted")
 
-# Specific to Qdrant, we can add a method to get collection info and health check,
-# if we change to other DB, we can remove these methods and implement them in the new DB class.
+    # Specific to Qdrant, we can add a method to get collection info and health check,
+    # if we change to other DB, we can remove these methods and implement them in the new DB class.
     def get_collection_info(self) -> dict:
         """Get information about the collection.
 
