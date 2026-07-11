@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 
 # Create virtual environment and install dependencies
-# use no cache-dir to reduce image size,other wise pip will cache the packages and increase the image size
+# use no cache-dir to reduce image size,other wise 
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -42,6 +42,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy application code
 COPY app/ ./app/
+COPY static/ ./static/
 
 # Set ownership to non-root user
 RUN chown -R appuser:appgroup /app
