@@ -112,7 +112,7 @@ jobs:
           context: .
           push: false
           load: true
-          tags: simplerag-app:${{ github.sha }}
+          tags: simple-rag-system:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
